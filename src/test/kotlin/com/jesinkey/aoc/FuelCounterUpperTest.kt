@@ -9,7 +9,7 @@ class FuelCounterUpperTest {
     fun `test mass of 12 requires 2 fuel`() {
         val subject = FuelCounterUpper()
 
-        val result = subject.requiredFuel(Module(12))
+        val result = subject.requiredFuel(listOf(Module(12)))
         val expectedResult = 2
 
         assertEquals(expectedResult, result)
@@ -19,28 +19,28 @@ class FuelCounterUpperTest {
     fun `test mass of 14 requires 2 fuel`() {
         val subject = FuelCounterUpper()
 
-        val result = subject.requiredFuel(Module(14))
+        val result = subject.requiredFuel(listOf(Module(14)))
         val expectedResult = 2
 
         assertEquals(expectedResult, result)
     }
 
     @Test
-    fun `test mass of 1969 requires 654 fuel`() {
+    fun `test mass of 1969 requires 966 fuel`() {
         val subject = FuelCounterUpper()
 
-        val result = subject.requiredFuel(Module(1969))
-        val expectedResult = 654
+        val result = subject.requiredFuel(listOf(Module(1969)))
+        val expectedResult = 966
 
         assertEquals(expectedResult, result)
     }
 
     @Test
-    fun `test mass of 100756 requires 33583 fuel`() {
+    fun `test mass of 100756 requires 50346 fuel`() {
         val subject = FuelCounterUpper()
 
-        val result = subject.requiredFuel(Module(100756))
-        val expectedResult = 33583
+        val result = subject.requiredFuel(listOf(Module(100756)))
+        val expectedResult = 50346
 
         assertEquals(expectedResult, result)
     }
