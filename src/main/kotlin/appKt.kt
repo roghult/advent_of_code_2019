@@ -10,6 +10,7 @@ fun main() {
     println(requiredFuel)
 
     day_2_task_1()
+    day_2_task_2()
 }
 
 private fun day_2_task_1() {
@@ -26,4 +27,20 @@ private fun day_2_task_1() {
     println()
     println("Day 2, task 1:")
     println(result[0])
+}
+
+private fun day_2_task_2() {
+    println()
+    println("Day 2, task 2:")
+    val desiredOutput = 19690720
+    val nounAndVerb = nounAndVerbFinder(
+        input = INTCODE_INPUT,
+        desiredOutput = desiredOutput,
+        nouns = (0..99).toList(),
+        verbs = (0..99).toList()
+    )!!
+    println("Found $desiredOutput with noun = ${nounAndVerb.noun} and verb = ${nounAndVerb.verb}")
+
+    // What is 100 * noun + verb?
+    println("Answer = ${100 * nounAndVerb.noun + nounAndVerb.verb}")
 }

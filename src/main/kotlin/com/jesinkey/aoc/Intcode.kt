@@ -25,3 +25,24 @@ class Intcode {
         return newSequence
     }
 }
+
+data class NounAndVerb(
+    val noun: Int,
+    val verb: Int
+)
+
+fun nounAndVerbFinder(input: List<Int>, desiredOutput: Int, nouns: List<Int>, verbs: List<Int>): NounAndVerb? {
+    val intcode = Intcode()
+    for (noun in nouns) {
+        for (verb in verbs) {
+            val input = INTCODE_INPUT.toMutableList()
+            input[1] = noun
+            input[2] = verb
+            val result = intcode.run(input)
+            if (result[0] == desiredOutput) {
+                return NounAndVerb(noun, verb)
+            }
+        }
+    }
+    return null
+}
