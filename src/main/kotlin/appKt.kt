@@ -9,13 +9,13 @@ fun main() {
     // 4995942
     println(requiredFuel)
 
-    day_2_task_1()
-    day_2_task_2()
-    day_3_task_1()
-    day_3_task_2()
+    day2Task1()
+    day2Task2()
+    day3Task1()
+    day3Task2()
 }
 
-fun day_3_task_2() {
+fun day3Task2() {
     println()
     println("Day 3, task 2:")
     val input = WIRE_MAP_INPUT
@@ -24,7 +24,7 @@ fun day_3_task_2() {
     println("Answer = $shortestSteps")
 }
 
-private fun day_3_task_1() {
+private fun day3Task1() {
     println()
     println("Day 3, task 1:")
     val input = WIRE_MAP_INPUT
@@ -33,7 +33,7 @@ private fun day_3_task_1() {
     println("Answer = $shortestDistance")
 }
 
-private fun day_2_task_2() {
+private fun day2Task2() {
     println()
     println("Day 2, task 2:")
     val desiredOutput = 19690720
@@ -49,7 +49,7 @@ private fun day_2_task_2() {
     println("Answer = ${100 * nounAndVerb.noun + nounAndVerb.verb}")
 }
 
-private fun day_2_task_1() {
+private fun day2Task1() {
     /*
     Once you have a working computer, the first step is to restore the gravity assist program (your puzzle input)
     to the "1202 program alarm" state it had just before the last computer caught fire. To do this, before running
