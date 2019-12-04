@@ -13,6 +13,21 @@ fun main() {
     day2Task2()
     day3Task1()
     day3Task2()
+    day3Task3()
+}
+
+fun day3Task3() {
+    println()
+    println("Day 4, task 1:")
+    val from = 246540
+    val to = 787419
+    val passwordVerification = PasswordVerification()
+    val inputToResult = (from..to).associateWith {
+        passwordVerification.verify(it.toString())
+    }
+    val numTrue = inputToResult.values.count { it }
+
+    println("Answer = $numTrue")
 }
 
 fun day3Task2() {
