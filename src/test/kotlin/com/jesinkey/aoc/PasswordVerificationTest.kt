@@ -6,9 +6,9 @@ import org.junit.jupiter.api.Test
 internal class PasswordVerificationTest {
 
     @Test
-    fun `test 111111 is ok`() {
+    fun `test 111111 is not ok`() {
         val subject = PasswordVerification()
-        val expected = true
+        val expected = false
         val result = subject.verify("111111")
         assertEquals(expected, result)
     }
@@ -38,7 +38,7 @@ internal class PasswordVerificationTest {
     }
 
     @Test
-    fun `test 123444 is ok`() {
+    fun `test 123444 is not ok`() {
         val subject = PasswordVerification()
         val expected = false
         val result = subject.verify("123444")

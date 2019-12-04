@@ -2,7 +2,7 @@ package com.jesinkey.aoc
 
 class PasswordVerification {
     fun verify(password: String): Boolean {
-        return digitsOnlyIncrease(password) && hasDoubleDigit(password)
+        return foo(password) && digitsOnlyIncrease(password)
     }
 
     private fun digitsOnlyIncrease(password: String): Boolean {
@@ -23,4 +23,10 @@ class PasswordVerification {
         return false
     }
 
+    private fun foo(password: String): Boolean {
+        val asd = password.groupBy { it }.map { (a, b) ->
+            a to b.size
+        }.toMap()
+        return asd.values.any { it == 2 }
+    }
 }
