@@ -13,10 +13,12 @@ enum class ParameterMode(val code: Int) {
 enum class Opcode(val code: Int) {
     ADD(1),
     MULTIPLY(2),
+    INPUT(3),
+    OUTPUT(4),
     EXIT(99);
 
     companion object {
-        private val values = Opcode.values();
+        private val values = values();
         fun getByValue(value: Int) = values.first { it.code == value }
     }
 }
@@ -52,6 +54,17 @@ class Intcode {
                     newSequence[outputPosition] = parameter1Value * parameter2Value
                     4
                 }
+                Opcode.INPUT -> {
+                    val input = readLine()
+                    val outputPosition = value(newSequence, pos + 1, outputParameterMode)
+                    newSequence[outputPosition] = input!!.toInt()
+                    2
+                }
+                Opcode.OUTPUT -> {
+                    val output = value(newSequence, pos + 1, parameterMode1)
+                    println(output)
+                    2
+                }
                 Opcode.EXIT -> return newSequence
             }
         }
@@ -63,13 +76,13 @@ class Intcode {
     }
 
     private fun parameterMode(instruction: String, number: Int): ParameterMode {
-        val instructionPosition = number + 1
+        val instructionPosition = number + 2
         val parameterValue = when {
             number == 3 -> {
                 1
             }
-            instruction.length > instructionPosition -> {
-                instruction[instruction.length - instructionPosition].toInt()
+            instruction.length >= instructionPosition -> {
+                instruction[instruction.length - instructionPosition].toString().toInt()
             }
             else -> {
                 0

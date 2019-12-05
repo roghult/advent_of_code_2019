@@ -10,6 +10,8 @@ class IntcodeTest {
         listOf(1,0,0,0,99) to listOf(2,0,0,0,99),
         listOf(2,3,0,3,99) to listOf(2,3,0,6,99),
         listOf(2,4,4,5,99,0) to listOf(2,4,4,5,99,9801),
+        listOf(1002,4,3,4,33) to listOf(1002,4,3,4,99),
+        listOf(1101,100,-1,4,0) to listOf(1101,100,-1,4,99),
         listOf(1,1,1,4,99,5,6,0,99) to listOf(30,1,1,4,2,5,6,0,99)
     )
 
