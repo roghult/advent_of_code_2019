@@ -16,6 +16,15 @@ fun main() {
     day4Task1()
     day4Task2()
     day5Task1()
+    day5Task2()
+}
+
+fun day5Task2() {
+    println()
+    println("Day 5, task 1:")
+    val input = INTCODE_INPUT_DAY_5
+    val intcode = Intcode()
+    intcode.run(input)
 }
 
 fun day5Task1() {

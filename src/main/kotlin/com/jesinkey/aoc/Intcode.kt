@@ -15,6 +15,10 @@ enum class Opcode(val code: Int) {
     MULTIPLY(2),
     INPUT(3),
     OUTPUT(4),
+    JUMP_IF_TRUE(5),
+    JUMP_IF_FALSE(6),
+    LESS_THAN(7),
+    EQUALS(8),
     EXIT(99);
 
     companion object {
@@ -27,9 +31,9 @@ class Intcode {
 
     fun run(sequence: List<Int>): List<Int> {
         val newSequence = sequence.toMutableList()
-        var pos = 0
-        while (pos != sequence.lastIndex) {
-            val instruction = newSequence[pos].toString()
+        var instructionPointer = 0
+        while (instructionPointer != sequence.lastIndex) {
+            val instruction = newSequence[instructionPointer].toString()
             val opcode = Opcode.getByValue(opcode(instruction))
             if (opcode == Opcode.EXIT) {
                 return newSequence
@@ -39,31 +43,71 @@ class Intcode {
             val parameterMode2 = parameterMode(instruction, 2)
             val outputParameterMode = parameterMode(instruction, 3)
 
-            pos += when (opcode) {
+            when (opcode) {
                 Opcode.ADD -> {
-                    val parameter1Value = value(newSequence, pos + 1, parameterMode1)
-                    val parameter2Value = value(newSequence, pos + 2, parameterMode2)
-                    val outputPosition = value(newSequence, pos + 3, outputParameterMode)
+                    val parameter1Value = value(newSequence, instructionPointer + 1, parameterMode1)
+                    val parameter2Value = value(newSequence, instructionPointer + 2, parameterMode2)
+                    val outputPosition = value(newSequence, instructionPointer + 3, outputParameterMode)
                     newSequence[outputPosition] = parameter1Value + parameter2Value
-                    4
+                    instructionPointer += 4
                 }
                 Opcode.MULTIPLY -> {
-                    val parameter1Value = value(newSequence, pos + 1, parameterMode1)
-                    val parameter2Value = value(newSequence, pos + 2, parameterMode2)
-                    val outputPosition = value(newSequence, pos + 3, outputParameterMode)
+                    val parameter1Value = value(newSequence, instructionPointer + 1, parameterMode1)
+                    val parameter2Value = value(newSequence, instructionPointer + 2, parameterMode2)
+                    val outputPosition = value(newSequence, instructionPointer + 3, outputParameterMode)
                     newSequence[outputPosition] = parameter1Value * parameter2Value
-                    4
+                    instructionPointer += 4
                 }
                 Opcode.INPUT -> {
                     val input = readLine()
-                    val outputPosition = value(newSequence, pos + 1, outputParameterMode)
+                    val outputPosition = value(newSequence, instructionPointer + 1, outputParameterMode)
                     newSequence[outputPosition] = input!!.toInt()
-                    2
+                    instructionPointer += 2
                 }
                 Opcode.OUTPUT -> {
-                    val output = value(newSequence, pos + 1, parameterMode1)
+                    val output = value(newSequence, instructionPointer + 1, parameterMode1)
                     println(output)
-                    2
+                    instructionPointer += 2
+                }
+                Opcode.JUMP_IF_TRUE -> {
+                    val parameter1Value = value(newSequence, instructionPointer + 1, parameterMode1)
+                    val parameter2Value = value(newSequence, instructionPointer + 2, parameterMode2)
+                    if (parameter1Value != 0) {
+                        instructionPointer = parameter2Value
+                    } else {
+                        instructionPointer += 3
+                    }
+                }
+                Opcode.JUMP_IF_FALSE -> {
+                    val parameter1Value = value(newSequence, instructionPointer + 1, parameterMode1)
+                    val parameter2Value = value(newSequence, instructionPointer + 2, parameterMode2)
+                    if (parameter1Value == 0) {
+                        instructionPointer = parameter2Value
+                    } else {
+                        instructionPointer += 3
+                    }
+                }
+                Opcode.LESS_THAN -> {
+                    val parameter1Value = value(newSequence, instructionPointer + 1, parameterMode1)
+                    val parameter2Value = value(newSequence, instructionPointer + 2, parameterMode2)
+                    val outputPosition = value(newSequence, instructionPointer + 3, outputParameterMode)
+                    newSequence[outputPosition] = if (parameter1Value < parameter2Value) {
+                        1
+                    } else {
+                        0
+                    }
+                    instructionPointer += 4
+                }
+                Opcode.EQUALS -> {
+                    val parameter1Value = value(newSequence, instructionPointer + 1, parameterMode1)
+                    val parameter2Value = value(newSequence, instructionPointer + 2, parameterMode2)
+                    val outputPosition = value(newSequence, instructionPointer + 3, outputParameterMode)
+                    newSequence[outputPosition] = if (parameter1Value == parameter2Value) {
+                        1
+                    } else {
+                        0
+                    }
+                    instructionPointer += 4
                 }
                 Opcode.EXIT -> return newSequence
             }
