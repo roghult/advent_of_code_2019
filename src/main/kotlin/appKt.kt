@@ -1,4 +1,5 @@
 import com.jesinkey.aoc.*
+import java.io.File
 
 fun main() {
     val fuelCounterUpper = FuelCounterUpper()
@@ -9,19 +10,32 @@ fun main() {
     // 4995942
     println(requiredFuel)
 
-    day2Task1()
-    day2Task2()
-    day3Task1()
-    day3Task2()
-    day4Task1()
-    day4Task2()
-    day5Task1()
-    day5Task2()
+//    day2Task1()
+//    day2Task2()
+//    day3Task1()
+//    day3Task2()
+//    day4Task1()
+//    day4Task2()
+//    day5Task1()
+//    day5Task2()
+    day6Task1()
+}
+
+fun day6Task1() {
+    println()
+    println("Day 6, task 1:")
+    val inputFileName = "input_day_6_task_1.txt"
+    val dir = "src/main/resources/"
+    val fullPath = dir + inputFileName
+    val input = File(fullPath)
+    val spaceObjects = SpaceObjectFactory().fromInputText(input.readLines())
+    val totalOrbits = totalNumberOfOrbits(spaceObjects)
+    print("Total orbits: $totalOrbits")
 }
 
 fun day5Task2() {
     println()
-    println("Day 5, task 1:")
+    println("Day 5, task 2:")
     val input = INTCODE_INPUT_DAY_5
     val intcode = Intcode()
     intcode.run(input)
