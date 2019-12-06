@@ -74,4 +74,18 @@ internal class SpaceObjectTest {
         val result = totalNumberOfOrbits(spaceObjects)
         assertEquals(expected, result)
     }
+
+    @Test
+    fun `orbital transfer`() {
+        val factory = SpaceObjectFactory()
+        val input = File(dir + "input_orbital_transfer_test.txt")
+        val spaceObjects =  factory.fromInputText(input.readLines())
+        val expected = 4
+        val result = minimumTransfersRequired(
+            spaceObjects = spaceObjects,
+            fromName = "YOU",
+            toName = "SAN"
+        )
+        assertEquals(expected, result)
+    }
 }

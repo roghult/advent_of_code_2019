@@ -2,13 +2,13 @@ import com.jesinkey.aoc.*
 import java.io.File
 
 fun main() {
-    val fuelCounterUpper = FuelCounterUpper()
+//    val fuelCounterUpper = FuelCounterUpper()
 
-    val requiredFuel = fuelCounterUpper.requiredFuel(
-        MODULES.map { Module(it) }
-    )
+//    val requiredFuel = fuelCounterUpper.requiredFuel(
+//        MODULES.map { Module(it) }
+//    )
     // 4995942
-    println(requiredFuel)
+//    println(requiredFuel)
 
 //    day2Task1()
 //    day2Task2()
@@ -18,7 +18,24 @@ fun main() {
 //    day4Task2()
 //    day5Task1()
 //    day5Task2()
-    day6Task1()
+//    day6Task1()
+    day6Task2()
+}
+
+fun day6Task2() {
+    println()
+    println("Day 6, task 2:")
+    val inputFileName = "input_day_6_task_1.txt"
+    val dir = "src/main/resources/"
+    val fullPath = dir + inputFileName
+    val input = File(fullPath)
+    val spaceObjects = SpaceObjectFactory().fromInputText(input.readLines())
+    val transfers = minimumTransfersRequired(
+        spaceObjects = spaceObjects,
+        fromName = "YOU",
+        toName = "SAN"
+    )
+    print("Minimum transfers: $transfers")
 }
 
 fun day6Task1() {
