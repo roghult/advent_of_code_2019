@@ -1,6 +1,5 @@
 import com.jesinkey.aoc.*
 import java.io.File
-import java.util.function.IntConsumer
 
 fun main() {
 //    val fuelCounterUpper = FuelCounterUpper()
@@ -21,7 +20,22 @@ fun main() {
 //    day5Task2()
 //    day6Task1()
 //    day6Task2()
-    day7Task1()
+//    day7Task1()
+    day7Task2()
+}
+
+fun day7Task2() {
+    println()
+    println("Day 7, task 2:")
+
+    val inputFileName = "input_day_7.txt"
+    val dir = "src/main/resources/"
+    val fullPath = dir + inputFileName
+    val input = File(fullPath)
+    val inputList = input.readLines().flatMap { it.split(",") }.map { it.toInt() }
+    val amplifier = Amplifier(inputList)
+    val (phaseSettings, thrusterSignal) = amplifier.run(5..9)
+    println("With $phaseSettings found thruster signal $thrusterSignal")
 }
 
 fun day7Task1() {
@@ -33,8 +47,8 @@ fun day7Task1() {
     val fullPath = dir + inputFileName
     val input = File(fullPath)
     val inputList = input.readLines().flatMap { it.split(",") }.map { it.toInt() }
-    val intcode = Intcode()
-    val (phaseSettings, thrusterSignal) = intcode.runAmplifierControllerSoftware(inputList)
+    val amplifier = Amplifier(inputList)
+    val (phaseSettings, thrusterSignal) = amplifier.run(0..4)
     println("With $phaseSettings found thruster signal $thrusterSignal")
 }
 
@@ -70,16 +84,16 @@ fun day5Task2() {
     println()
     println("Day 5, task 2:")
     val input = INTCODE_INPUT_DAY_5
-    val intcode = Intcode()
-    intcode.run(input)
+    val intcode = Intcode(input.toMutableList())
+    intcode.run()
 }
 
 fun day5Task1() {
     println()
     println("Day 5, task 1:")
     val input = INTCODE_INPUT_DAY_5
-    val intcode = Intcode()
-    intcode.run(input)
+    val intcode = Intcode(input.toMutableList())
+    intcode.run()
 }
 
 fun day4Task2() {
@@ -153,9 +167,9 @@ private fun day2Task1() {
     val input = INTCODE_INPUT.toMutableList()
     input[1] = 12
     input[2] = 2
-    val intcode = Intcode()
-    val result = intcode.run(input)
+    val intcode = Intcode(input)
+    val result = intcode.run()
     println()
     println("Day 2, task 1:")
-    println(result[0])
+    println(result)
 }

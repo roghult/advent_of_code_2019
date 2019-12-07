@@ -27,55 +27,17 @@ enum class Opcode(val code: Int) {
     }
 }
 
-class Intcode {
+class Intcode(private val sequence: MutableList<Int>) {
 
-    private var outputHistory = 0
+    private var latestOutput = 0
+    private var instructionPointer = 0
 
-    fun runAmplifierControllerSoftware(startSequence: List<Int>): Pair<List<Int>, Int> {
-        val phaseSettings = 0..4
-        var largestThrusterSignal = Int.MIN_VALUE
-        var largestPhaseSettings = emptyList<Int>()
-        for (phaseSetting1 in phaseSettings) {
-            for (phaseSetting2 in phaseSettings) {
-                for (phaseSetting3 in phaseSettings) {
-                    for (phaseSetting4 in phaseSettings) {
-                        for (phaseSetting5 in phaseSettings) {
-                            val currentPhaseSettings = listOf(
-                                phaseSetting1,
-                                phaseSetting2,
-                                phaseSetting3,
-                                phaseSetting4,
-                                phaseSetting5
-                            )
-
-                            if (currentPhaseSettings.toSet().size == currentPhaseSettings.size) {
-                                run(startSequence, mutableListOf(phaseSetting1, 0))
-                                run(startSequence, mutableListOf(phaseSetting2, outputHistory))
-                                run(startSequence, mutableListOf(phaseSetting3, outputHistory))
-                                run(startSequence, mutableListOf(phaseSetting4, outputHistory))
-                                run(startSequence, mutableListOf(phaseSetting5, outputHistory))
-                                val thrusterSignal = outputHistory
-                                if (thrusterSignal > largestThrusterSignal) {
-                                    largestThrusterSignal = thrusterSignal
-                                    largestPhaseSettings = currentPhaseSettings
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return largestPhaseSettings to largestThrusterSignal
-    }
-
-    fun run(sequence: List<Int>, inputs: MutableList<Int> = mutableListOf()): List<Int> {
-        val newSequence = sequence.toMutableList()
-        var instructionPointer = 0
+    fun run(inputs: MutableList<Int> = mutableListOf()): Int? {
         while (instructionPointer != sequence.lastIndex) {
-            val instruction = newSequence[instructionPointer].toString()
+            val instruction = sequence[instructionPointer].toString()
             val opcode = Opcode.getByValue(opcode(instruction))
             if (opcode == Opcode.EXIT) {
-                return newSequence
+                return null // ?
             }
 
             val parameterMode1 = parameterMode(instruction, 1)
@@ -84,38 +46,39 @@ class Intcode {
 
             when (opcode) {
                 Opcode.ADD -> {
-                    val parameter1Value = value(newSequence, instructionPointer + 1, parameterMode1)
-                    val parameter2Value = value(newSequence, instructionPointer + 2, parameterMode2)
-                    val outputPosition = value(newSequence, instructionPointer + 3, outputParameterMode)
-                    newSequence[outputPosition] = parameter1Value + parameter2Value
+                    val parameter1Value = value(sequence, instructionPointer + 1, parameterMode1)
+                    val parameter2Value = value(sequence, instructionPointer + 2, parameterMode2)
+                    val outputPosition = value(sequence, instructionPointer + 3, outputParameterMode)
+                    sequence[outputPosition] = parameter1Value + parameter2Value
                     instructionPointer += 4
                 }
                 Opcode.MULTIPLY -> {
-                    val parameter1Value = value(newSequence, instructionPointer + 1, parameterMode1)
-                    val parameter2Value = value(newSequence, instructionPointer + 2, parameterMode2)
-                    val outputPosition = value(newSequence, instructionPointer + 3, outputParameterMode)
-                    newSequence[outputPosition] = parameter1Value * parameter2Value
+                    val parameter1Value = value(sequence, instructionPointer + 1, parameterMode1)
+                    val parameter2Value = value(sequence, instructionPointer + 2, parameterMode2)
+                    val outputPosition = value(sequence, instructionPointer + 3, outputParameterMode)
+                    sequence[outputPosition] = parameter1Value * parameter2Value
                     instructionPointer += 4
                 }
                 Opcode.INPUT -> {
                     val input = if (inputs.isEmpty()) {
-                        readLine()!!.toInt()
+                        return null
                     } else {
                         inputs.removeAt(0)
                     }
-                    val outputPosition = value(newSequence, instructionPointer + 1, outputParameterMode)
-                    newSequence[outputPosition] = input
+                    val outputPosition = value(sequence, instructionPointer + 1, outputParameterMode)
+                    sequence[outputPosition] = input
                     instructionPointer += 2
                 }
                 Opcode.OUTPUT -> {
-                    val output = value(newSequence, instructionPointer + 1, parameterMode1)
+                    val output = value(sequence, instructionPointer + 1, parameterMode1)
                     println(output)
-                    outputHistory = output
+                    latestOutput = output
                     instructionPointer += 2
+                    return latestOutput
                 }
                 Opcode.JUMP_IF_TRUE -> {
-                    val parameter1Value = value(newSequence, instructionPointer + 1, parameterMode1)
-                    val parameter2Value = value(newSequence, instructionPointer + 2, parameterMode2)
+                    val parameter1Value = value(sequence, instructionPointer + 1, parameterMode1)
+                    val parameter2Value = value(sequence, instructionPointer + 2, parameterMode2)
                     if (parameter1Value != 0) {
                         instructionPointer = parameter2Value
                     } else {
@@ -123,8 +86,8 @@ class Intcode {
                     }
                 }
                 Opcode.JUMP_IF_FALSE -> {
-                    val parameter1Value = value(newSequence, instructionPointer + 1, parameterMode1)
-                    val parameter2Value = value(newSequence, instructionPointer + 2, parameterMode2)
+                    val parameter1Value = value(sequence, instructionPointer + 1, parameterMode1)
+                    val parameter2Value = value(sequence, instructionPointer + 2, parameterMode2)
                     if (parameter1Value == 0) {
                         instructionPointer = parameter2Value
                     } else {
@@ -132,10 +95,10 @@ class Intcode {
                     }
                 }
                 Opcode.LESS_THAN -> {
-                    val parameter1Value = value(newSequence, instructionPointer + 1, parameterMode1)
-                    val parameter2Value = value(newSequence, instructionPointer + 2, parameterMode2)
-                    val outputPosition = value(newSequence, instructionPointer + 3, outputParameterMode)
-                    newSequence[outputPosition] = if (parameter1Value < parameter2Value) {
+                    val parameter1Value = value(sequence, instructionPointer + 1, parameterMode1)
+                    val parameter2Value = value(sequence, instructionPointer + 2, parameterMode2)
+                    val outputPosition = value(sequence, instructionPointer + 3, outputParameterMode)
+                    sequence[outputPosition] = if (parameter1Value < parameter2Value) {
                         1
                     } else {
                         0
@@ -143,20 +106,20 @@ class Intcode {
                     instructionPointer += 4
                 }
                 Opcode.EQUALS -> {
-                    val parameter1Value = value(newSequence, instructionPointer + 1, parameterMode1)
-                    val parameter2Value = value(newSequence, instructionPointer + 2, parameterMode2)
-                    val outputPosition = value(newSequence, instructionPointer + 3, outputParameterMode)
-                    newSequence[outputPosition] = if (parameter1Value == parameter2Value) {
+                    val parameter1Value = value(sequence, instructionPointer + 1, parameterMode1)
+                    val parameter2Value = value(sequence, instructionPointer + 2, parameterMode2)
+                    val outputPosition = value(sequence, instructionPointer + 3, outputParameterMode)
+                    sequence[outputPosition] = if (parameter1Value == parameter2Value) {
                         1
                     } else {
                         0
                     }
                     instructionPointer += 4
                 }
-                Opcode.EXIT -> return newSequence
+                Opcode.EXIT -> return null
             }
         }
-        return newSequence
+        return null
     }
 
     private fun opcode(instruction: String): Int {
@@ -193,6 +156,7 @@ data class NounAndVerb(
 )
 
 fun nounAndVerbFinder(input: List<Int>, desiredOutput: Int, nouns: List<Int>, verbs: List<Int>): NounAndVerb? {
+    /*
     val intcode = Intcode()
     for (noun in nouns) {
         for (verb in verbs) {
@@ -205,5 +169,6 @@ fun nounAndVerbFinder(input: List<Int>, desiredOutput: Int, nouns: List<Int>, ve
             }
         }
     }
+     */
     return null
 }
