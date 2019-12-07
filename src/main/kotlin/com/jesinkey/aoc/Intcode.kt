@@ -29,7 +29,46 @@ enum class Opcode(val code: Int) {
 
 class Intcode {
 
-    fun run(sequence: List<Int>): List<Int> {
+    private var outputHistory = 0
+
+    fun runAmplifierControllerSoftware(startSequence: List<Int>): Pair<List<Int>, Int> {
+        val phaseSettings = 0..4
+        var largestThrusterSignal = Int.MIN_VALUE
+        var largestPhaseSettings = emptyList<Int>()
+        for (phaseSetting1 in phaseSettings) {
+            for (phaseSetting2 in phaseSettings) {
+                for (phaseSetting3 in phaseSettings) {
+                    for (phaseSetting4 in phaseSettings) {
+                        for (phaseSetting5 in phaseSettings) {
+                            val currentPhaseSettings = listOf(
+                                phaseSetting1,
+                                phaseSetting2,
+                                phaseSetting3,
+                                phaseSetting4,
+                                phaseSetting5
+                            )
+
+                            if (currentPhaseSettings.toSet().size == currentPhaseSettings.size) {
+                                run(startSequence, mutableListOf(phaseSetting1, 0))
+                                run(startSequence, mutableListOf(phaseSetting2, outputHistory))
+                                run(startSequence, mutableListOf(phaseSetting3, outputHistory))
+                                run(startSequence, mutableListOf(phaseSetting4, outputHistory))
+                                run(startSequence, mutableListOf(phaseSetting5, outputHistory))
+                                val thrusterSignal = outputHistory
+                                if (thrusterSignal > largestThrusterSignal) {
+                                    largestThrusterSignal = thrusterSignal
+                                    largestPhaseSettings = currentPhaseSettings
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return largestPhaseSettings to largestThrusterSignal
+    }
+
+    fun run(sequence: List<Int>, inputs: MutableList<Int> = mutableListOf()): List<Int> {
         val newSequence = sequence.toMutableList()
         var instructionPointer = 0
         while (instructionPointer != sequence.lastIndex) {
@@ -59,14 +98,19 @@ class Intcode {
                     instructionPointer += 4
                 }
                 Opcode.INPUT -> {
-                    val input = readLine()
+                    val input = if (inputs.isEmpty()) {
+                        readLine()!!.toInt()
+                    } else {
+                        inputs.removeAt(0)
+                    }
                     val outputPosition = value(newSequence, instructionPointer + 1, outputParameterMode)
-                    newSequence[outputPosition] = input!!.toInt()
+                    newSequence[outputPosition] = input
                     instructionPointer += 2
                 }
                 Opcode.OUTPUT -> {
                     val output = value(newSequence, instructionPointer + 1, parameterMode1)
                     println(output)
+                    outputHistory = output
                     instructionPointer += 2
                 }
                 Opcode.JUMP_IF_TRUE -> {

@@ -1,5 +1,6 @@
 import com.jesinkey.aoc.*
 import java.io.File
+import java.util.function.IntConsumer
 
 fun main() {
 //    val fuelCounterUpper = FuelCounterUpper()
@@ -19,7 +20,22 @@ fun main() {
 //    day5Task1()
 //    day5Task2()
 //    day6Task1()
-    day6Task2()
+//    day6Task2()
+    day7Task1()
+}
+
+fun day7Task1() {
+    println()
+    println("Day 7, task 1:")
+
+    val inputFileName = "input_day_7.txt"
+    val dir = "src/main/resources/"
+    val fullPath = dir + inputFileName
+    val input = File(fullPath)
+    val inputList = input.readLines().flatMap { it.split(",") }.map { it.toInt() }
+    val intcode = Intcode()
+    val (phaseSettings, thrusterSignal) = intcode.runAmplifierControllerSoftware(inputList)
+    println("With $phaseSettings found thruster signal $thrusterSignal")
 }
 
 fun day6Task2() {
