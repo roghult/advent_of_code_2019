@@ -3,7 +3,7 @@ package com.jesinkey.aoc
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
-class LayerTest {
+class ImageTest {
 
     @Test
     fun `test layer with fewest 0s`() {
@@ -56,5 +56,29 @@ class LayerTest {
         val image = Image(input, width, height)
         assertEquals(2, image.occurrencesInLayer(1, 3))
         assertEquals(1, image.occurrencesInLayer(2, 3))
+    }
+
+    @Test
+    fun `test final image`() {
+        /*
+        Layer 1: 020
+                 220
+
+        Layer 2: 111
+                 221
+
+        Layer 3: 222
+                 122
+
+        Layer 4: 000
+                 000
+         */
+        val input = "020220111222122122000000"
+        val width = 3
+        val height = 2
+        val image = Image(input, width, height)
+        val expected = "010\n100\n"
+        val result = image.finalImage()
+        assertEquals(expected, result)
     }
 }
