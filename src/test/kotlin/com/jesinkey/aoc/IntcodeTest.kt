@@ -17,9 +17,9 @@ class IntcodeTest {
 
     @Test
     fun `sequence`() {
-        val subject = Intcode()
         for ((start, expected) in startSequenceToExpected) {
-            val result = subject.run(start)
+            val subject = Intcode(start.toMutableList())
+            val result = subject.run()
             assertEquals(expected, result)
         }
     }
