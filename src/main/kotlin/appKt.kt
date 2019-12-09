@@ -12,6 +12,6 @@ fun main() {
     val intcode = Intcode(sequence.mapIndexed { index, value -> index.toLong() to value }.toMap() as MutableMap<Long, Long>)
     var output: Long? = 0
     while (output != null) {
-        output = intcode.run(mutableListOf(1))
+        output = intcode.run(mutableListOf(2))
     }
 }
