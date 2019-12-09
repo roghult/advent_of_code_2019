@@ -1,10 +1,11 @@
 package com.jesinkey.aoc
 
-class Amplifier(private val sequence: List<Int>) {
-    
-    fun run(phaseSettings: IntRange): Pair<List<Int>, Int> {
-        var largestThrusterSignal = Int.MIN_VALUE
-        var largestPhaseSettings = emptyList<Int>()
+class Amplifier(private val sequence: List<Long>) {
+
+    /*
+    fun run(phaseSettings: LongRange): Pair<List<Long>, Long> {
+        var largestThrusterSignal = Long.MIN_VALUE
+        var largestPhaseSettings = emptyList<Long>()
         for (phaseSettingA in phaseSettings) {
             for (phaseSettingB in phaseSettings) {
                 for (phaseSettingC in phaseSettings) {
@@ -29,10 +30,10 @@ class Amplifier(private val sequence: List<Int>) {
                                 var ampEOutput: Int? = 0
 
                                 val ampAInput = mutableListOf(phaseSettingA, ampEOutput)
-                                val ampBInput = mutableListOf<Int?>(phaseSettingB)
-                                val ampCInput = mutableListOf<Int?>(phaseSettingC)
-                                val ampDInput = mutableListOf<Int?>(phaseSettingD)
-                                val ampEInput = mutableListOf<Int?>(phaseSettingE)
+                                val ampBInput = mutableListOf<Long?>(phaseSettingB)
+                                val ampCInput = mutableListOf<Long?>(phaseSettingC)
+                                val ampDInput = mutableListOf<Long?>(phaseSettingD)
+                                val ampEInput = mutableListOf<Long?>(phaseSettingE)
 
                                 while (ampEOutput != null) {
                                     val ampAOutput = ampA.run(ampAInput.filterNotNull().toMutableList())
@@ -66,5 +67,7 @@ class Amplifier(private val sequence: List<Int>) {
         }
         return largestPhaseSettings to largestThrusterSignal
     }
+
+     */
 
 }
