@@ -36,7 +36,7 @@ class Intcode(val sequence: MutableMap<Long, Long>) {
     private var instructionPointer: Long = 0
     private var relativeBase: Long = 0
 
-    fun run(inputs: MutableList<Int> = mutableListOf()): Long? {
+    fun run(inputs: MutableList<Long> = mutableListOf()): Long? {
         while (true) { // ?
             val opcode = Opcode.getByValue(opcode())
             if (opcode == Opcode.EXIT) {
@@ -67,7 +67,7 @@ class Intcode(val sequence: MutableMap<Long, Long>) {
                         inputs.removeAt(0)
                     }
                     val outputPosition = writeValue(1)
-                    setValue(outputPosition, input.toLong())
+                    setValue(outputPosition, input)
                     instructionPointer += 2
                 }
                 Opcode.OUTPUT -> {
