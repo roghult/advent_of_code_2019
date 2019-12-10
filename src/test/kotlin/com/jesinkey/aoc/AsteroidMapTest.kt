@@ -153,4 +153,37 @@ class AsteroidMapTest {
         assertEquals(expectedX, result.x)
         assertEquals(expectedY, result.y)
     }
+
+    @Test
+    fun `vaporize`() {
+        val map = ".#..##.###...#######\n" +
+                "##.############..##.\n" +
+                ".#.######.########.#\n" +
+                ".###.#######.####.#.\n" +
+                "#####.##.#.##.###.##\n" +
+                "..#####..#.#########\n" +
+                "####################\n" +
+                "#.####....###.#.#.##\n" +
+                "##.#################\n" +
+                "#####.##.###..####..\n" +
+                "..######..##.#######\n" +
+                "####.##.####...##..#\n" +
+                ".#####..#.######.###\n" +
+                "##...#.##########...\n" +
+                "#.##########.#######\n" +
+                ".####.#.###.###.#.##\n" +
+                "....##.##.###..#####\n" +
+                ".#.#.###########.###\n" +
+                "#.#.#.#####.####.###\n" +
+                "###.##.####.##.#..##"
+        val subject = AsteroidMap(map)
+        val result = subject.vaporizeList(11, 13)
+        assertEquals(Asteroid(11, 12), result[0])
+        assertEquals(Asteroid(12, 1), result[1])
+        assertEquals(Asteroid(12, 2), result[2])
+        assertEquals(Asteroid(12, 8), result[9])
+        assertEquals(Asteroid(16, 0), result[19])
+        assertEquals(Asteroid(16, 9), result[49])
+        assertEquals(Asteroid(11, 1), result[298])
+    }
 }

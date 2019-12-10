@@ -20,26 +20,61 @@ class AsteroidMap(val map: String) {
     fun bestAsteroid(): Asteroid {
         val asteroidMap = asteroidMap()
         for (asteroid in asteroidMap) {
-            val spottedAsteroids = mutableListOf<Pair<Asteroid, K>>()
-            for (otherAsteroid in asteroidMap) {
-                if (otherAsteroid == asteroid) {
-                    continue
-                }
-
-                val k = calcK(otherAsteroid, asteroid)
-                if (spottedAsteroids.any { it.second == k }) {
-                    val alreadySpottedAsteroid = spottedAsteroids.single { it.second == k }
-                    if (asteroid.distance(alreadySpottedAsteroid.first) > asteroid.distance(otherAsteroid)) {
-                        spottedAsteroids.removeIf { it.second == k }
-                        spottedAsteroids.add(otherAsteroid to k)
-                    }
-                } else {
-                    spottedAsteroids.add(otherAsteroid to k)
-                }
-            }
-            asteroid.spottedAsteroids = spottedAsteroids.map { it.first }
+            val spottedAsteroids = searchAsteroids(asteroidMap, asteroid)
+            asteroid.spottedAsteroids = spottedAsteroids.toList()
         }
         return asteroidMap.maxBy { it.spottedAsteroids.size }!!
+    }
+
+    fun vaporizeList(startX: Int, startY: Int): List<Asteroid> {
+        val asteroidMap = asteroidMap().toMutableList()
+        val startingAsteroid = asteroidMap.single { it.x == startX && it.y == startY }
+        asteroidMap.remove(startingAsteroid)
+        val directionOrder = listOf(
+            Direction.NORTH_EAST,
+            Direction.SOUTH_EAST,
+            Direction.SOUTH_WEST,
+            Direction.NORTH_WEST
+        )
+        val destroyedAsteroids = mutableListOf<Asteroid>()
+        while (asteroidMap.isNotEmpty()) {
+            val foundAsteroids = searchAsteroids(asteroidMap, startingAsteroid)
+            for (direction in directionOrder) {
+                val asteroidsInDirection = foundAsteroids.filter { (asteroid, k) ->
+                    k.direction == direction
+                }.sortedBy { it.second.k }.toMutableList()
+                val asteroidRightAbove = asteroidsInDirection.singleOrNull { it.second.k == 0.0 }
+                if (asteroidRightAbove != null) {
+                    asteroidsInDirection.remove(asteroidRightAbove)
+                    asteroidsInDirection.add(0, asteroidRightAbove)
+                }
+                for (asteroidInDirection in asteroidsInDirection) {
+                    destroyedAsteroids.add(asteroidInDirection.first)
+                    asteroidMap.remove(asteroidInDirection.first)
+                }
+            }
+        }
+        return destroyedAsteroids
+    }
+
+    private fun searchAsteroids(asteroids: List<Asteroid>, asteroid: Asteroid): List<Pair<Asteroid, K>> {
+        val spottedAsteroids = mutableListOf<Pair<Asteroid, K>>()
+        for (otherAsteroid in asteroids) {
+            if (otherAsteroid == asteroid) {
+                continue
+            }
+            val k = calcK(otherAsteroid, asteroid)
+            if (spottedAsteroids.any { it.second == k }) {
+                val alreadySpottedAsteroid = spottedAsteroids.single { it.second == k }
+                if (asteroid.distance(alreadySpottedAsteroid.first) > asteroid.distance(otherAsteroid)) {
+                    spottedAsteroids.removeIf { it.second == k }
+                    spottedAsteroids.add(otherAsteroid to k)
+                }
+            } else {
+                spottedAsteroids.add(otherAsteroid to k)
+            }
+        }
+        return spottedAsteroids
     }
 
     private fun calcK(asteroid1: Asteroid, asteroid2: Asteroid): K {
