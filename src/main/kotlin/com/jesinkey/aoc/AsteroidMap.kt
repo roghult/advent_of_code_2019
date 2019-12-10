@@ -1,5 +1,7 @@
 package com.jesinkey.aoc
 
+import kotlin.math.atan2
+
 class AsteroidMap(val map: String) {
 
     fun asteroidMap(): List<Asteroid> {
@@ -43,12 +45,7 @@ class AsteroidMap(val map: String) {
             for (direction in directionOrder) {
                 val asteroidsInDirection = foundAsteroids.filter { (asteroid, k) ->
                     k.direction == direction
-                }.sortedBy { it.second.slope }.toMutableList()
-                val asteroidRightAbove = asteroidsInDirection.singleOrNull { it.second.slope == 0.0 }
-                if (asteroidRightAbove != null) {
-                    asteroidsInDirection.remove(asteroidRightAbove)
-                    asteroidsInDirection.add(0, asteroidRightAbove)
-                }
+                }.sortedBy { it.second.angle }.toMutableList()
                 for (asteroidInDirection in asteroidsInDirection) {
                     destroyedAsteroids.add(asteroidInDirection.first)
                     asteroidMap.remove(asteroidInDirection.first)
@@ -64,36 +61,24 @@ class AsteroidMap(val map: String) {
             if (otherAsteroid == asteroid) {
                 continue
             }
-            val k = asteroidView(otherAsteroid, asteroid)
-            if (spottedAsteroids.any { it.second == k }) {
-                val alreadySpottedAsteroid = spottedAsteroids.single { it.second == k }
+            val asteroidView = asteroidView(otherAsteroid, asteroid)
+            if (spottedAsteroids.any { it.second == asteroidView }) {
+                val alreadySpottedAsteroid = spottedAsteroids.single { it.second == asteroidView }
                 if (asteroid.distance(alreadySpottedAsteroid.first) > asteroid.distance(otherAsteroid)) {
-                    spottedAsteroids.removeIf { it.second == k }
-                    spottedAsteroids.add(otherAsteroid to k)
+                    spottedAsteroids.removeIf { it.second == asteroidView }
+                    spottedAsteroids.add(otherAsteroid to asteroidView)
                 }
             } else {
-                spottedAsteroids.add(otherAsteroid to k)
+                spottedAsteroids.add(otherAsteroid to asteroidView)
             }
         }
         return spottedAsteroids
     }
 
     private fun asteroidView(asteroid1: Asteroid, asteroid2: Asteroid): AsteroidView {
-        val deltaY = asteroid1.y - asteroid2.y
+        val deltaY = asteroid1.y - asteroid2.y.toDouble()
         val deltaX = asteroid1.x - asteroid2.x.toDouble()
-        val slope = if (deltaY == 0) { // probably not needed?
-            if (deltaX < 0) {
-                -0.0000000001
-            } else {
-                0.0000000001
-            }
-        } else {
-            if (deltaX == 0.0) {
-                0.0
-            } else {
-                deltaY / deltaX
-            }
-        }
+        val angle = atan2(deltaY, deltaX)
         val direction = when {
             asteroid1.y >= asteroid2.y && asteroid1.x >= asteroid2.x -> Direction.SOUTH_EAST
             asteroid1.y >= asteroid2.y && asteroid1.x <= asteroid2.x -> Direction.SOUTH_WEST
@@ -101,7 +86,7 @@ class AsteroidMap(val map: String) {
             asteroid1.y <= asteroid2.y && asteroid1.x <= asteroid2.x -> Direction.NORTH_WEST
             else -> TODO()
         }
-        return AsteroidView(slope, direction)
+        return AsteroidView(direction, angle)
     }
 }
 
@@ -112,4 +97,4 @@ enum class Direction(val code: Int) {
     SOUTH_WEST(3)
 }
 
-data class AsteroidView(val slope: Double, val direction: Direction)
+data class AsteroidView(val direction: Direction, val angle: Double)
