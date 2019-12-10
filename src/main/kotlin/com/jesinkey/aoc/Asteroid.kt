@@ -5,7 +5,7 @@ import kotlin.math.sqrt
 
 class Asteroid(val x: Int, val y: Int) {
 
-    lateinit var spottedAsteroids: List<Pair<Asteroid, K>>
+    lateinit var spottedAsteroids: List<Pair<Asteroid, AsteroidView>>
 
     fun distance(asteroid: Asteroid): Double {
         val xpow2 = (asteroid.x - x.toDouble()).pow(2)

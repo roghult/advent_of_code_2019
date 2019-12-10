@@ -20,7 +20,7 @@ class AsteroidMap(val map: String) {
     fun bestAsteroid(): Asteroid {
         val asteroidMap = asteroidMap()
         for (asteroid in asteroidMap) {
-            val spottedAsteroids = searchAsteroids(asteroidMap, asteroid)
+            val spottedAsteroids = findAsteroids(asteroidMap, asteroid)
             asteroid.spottedAsteroids = spottedAsteroids.toList()
         }
         return asteroidMap.maxBy { it.spottedAsteroids.size }!!
@@ -36,14 +36,15 @@ class AsteroidMap(val map: String) {
             Direction.SOUTH_WEST,
             Direction.NORTH_WEST
         )
+
         val destroyedAsteroids = mutableListOf<Asteroid>()
         while (asteroidMap.isNotEmpty()) {
-            val foundAsteroids = searchAsteroids(asteroidMap, startingAsteroid)
+            val foundAsteroids = findAsteroids(asteroidMap, startingAsteroid)
             for (direction in directionOrder) {
                 val asteroidsInDirection = foundAsteroids.filter { (asteroid, k) ->
                     k.direction == direction
-                }.sortedBy { it.second.k }.toMutableList()
-                val asteroidRightAbove = asteroidsInDirection.singleOrNull { it.second.k == 0.0 }
+                }.sortedBy { it.second.slope }.toMutableList()
+                val asteroidRightAbove = asteroidsInDirection.singleOrNull { it.second.slope == 0.0 }
                 if (asteroidRightAbove != null) {
                     asteroidsInDirection.remove(asteroidRightAbove)
                     asteroidsInDirection.add(0, asteroidRightAbove)
@@ -57,13 +58,13 @@ class AsteroidMap(val map: String) {
         return destroyedAsteroids
     }
 
-    private fun searchAsteroids(asteroids: List<Asteroid>, asteroid: Asteroid): List<Pair<Asteroid, K>> {
-        val spottedAsteroids = mutableListOf<Pair<Asteroid, K>>()
+    private fun findAsteroids(asteroids: List<Asteroid>, asteroid: Asteroid): List<Pair<Asteroid, AsteroidView>> {
+        val spottedAsteroids = mutableListOf<Pair<Asteroid, AsteroidView>>()
         for (otherAsteroid in asteroids) {
             if (otherAsteroid == asteroid) {
                 continue
             }
-            val k = calcK(otherAsteroid, asteroid)
+            val k = asteroidView(otherAsteroid, asteroid)
             if (spottedAsteroids.any { it.second == k }) {
                 val alreadySpottedAsteroid = spottedAsteroids.single { it.second == k }
                 if (asteroid.distance(alreadySpottedAsteroid.first) > asteroid.distance(otherAsteroid)) {
@@ -77,10 +78,10 @@ class AsteroidMap(val map: String) {
         return spottedAsteroids
     }
 
-    private fun calcK(asteroid1: Asteroid, asteroid2: Asteroid): K {
+    private fun asteroidView(asteroid1: Asteroid, asteroid2: Asteroid): AsteroidView {
         val deltaY = asteroid1.y - asteroid2.y
         val deltaX = asteroid1.x - asteroid2.x.toDouble()
-        val kValue = if (deltaY == 0) { // probably not needed?
+        val slope = if (deltaY == 0) { // probably not needed?
             if (deltaX < 0) {
                 -0.0000000001
             } else {
@@ -100,7 +101,7 @@ class AsteroidMap(val map: String) {
             asteroid1.y <= asteroid2.y && asteroid1.x <= asteroid2.x -> Direction.NORTH_WEST
             else -> TODO()
         }
-        return K(kValue, direction)
+        return AsteroidView(slope, direction)
     }
 }
 
@@ -111,4 +112,4 @@ enum class Direction(val code: Int) {
     SOUTH_WEST(3)
 }
 
-data class K(val k: Double, val direction: Direction)
+data class AsteroidView(val slope: Double, val direction: Direction)
