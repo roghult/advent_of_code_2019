@@ -1,19 +1,7 @@
 package com.jesinkey.aoc
 
-const val WIDTH = 99999999L
-const val HEIGHT = 99999999L
 const val BLACK = 0
 const val WHITE = 1
-
-enum class Color(val code: Int) {
-    BLACK(com.jesinkey.aoc.BLACK),
-    WHITE(com.jesinkey.aoc.WHITE);
-
-    companion object {
-        fun getByValue(value: Int) = values().first { it.code == value }
-        fun getByValue(value: Char) = getByValue(Character.getNumericValue(value))
-    }
-}
 
 enum class Turn(val code: Int) {
     LEFT(0),
@@ -73,14 +61,14 @@ class PaintRobot(val intcode: Intcode) {
 
     fun createMap(): MutableMap<Position, Int> {
         return mutableMapOf()
-//        return (0..HEIGHT).map { (0..WIDTH).map { BLACK }.toMutableList() }.toMutableList()
     }
 
     fun run(): Int {
         println("Starting")
-        var paintedTiles = 0
+        var paintedTiles = 1
         val map = createMap()
         var position = Position(0, 0)
+        map[position] = WHITE
         var direction = RobotDirection.UP
         while (true) {
             println("New run")
@@ -106,9 +94,6 @@ class PaintRobot(val intcode: Intcode) {
 
             println("New direction = $direction")
             println()
-
-//            printMap(map)
-
             position = position.move(direction)
         }
     }
@@ -118,7 +103,7 @@ class PaintRobot(val intcode: Intcode) {
         val largestY = map.keys.maxBy { it.y }!!.y
         val smallestX = map.keys.minBy { it.x }!!.x
         val smallestY = map.keys.minBy { it.y }!!.y
-        val yRange = (smallestY..largestY).toList()
+        val yRange = (smallestY..largestY).toList().reversed()
         val xRange = (smallestX..largestX).toList()
         val mapList = yRange.map { y ->
             xRange.map { x ->
@@ -133,7 +118,13 @@ class PaintRobot(val intcode: Intcode) {
         println()
         println()
         for (row in mapList) {
-            row.map { print("$it") }
+            row.map {
+                if (it == "1") {
+                    print("$it")
+                } else {
+                    print(" ")
+                }
+            }
             println()
         }
         println()
