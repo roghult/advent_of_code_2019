@@ -72,7 +72,7 @@ class Intcode(val sequence: MutableMap<Long, Long>) {
                 }
                 Opcode.OUTPUT -> {
                     val output = readValue(1)
-                    println(output)
+//                    println(output)
                     instructionPointer += 2
                     return output
                 }
