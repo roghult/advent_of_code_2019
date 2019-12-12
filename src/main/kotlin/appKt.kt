@@ -2,16 +2,17 @@ import com.jesinkey.aoc.*
 import java.io.File
 
 fun main() {
-    val inputFileName = "input_day_11.txt"
-    val dir = "src/main/resources/"
-    val fullPath = dir + inputFileName
-    val input = File(fullPath).readText()
+    val moons = listOf(
+        Moon(1, -4, 3),
+        Moon(-14, 9, -4),
+        Moon(-4, -6, 7),
+        Moon(6, -9, -11)
+    )
+    val moonMotion = MoonMotion()
+//    val moonsAfterSteps = moonMotion.simulate(moons, 1000)
+//    val totalEnergy = moonsAfterSteps.sumBy { it.totalEnergy() }
+//    println(totalEnergy)
 
-    val sequence = File(fullPath).readLines().first().split(",").map { it.toLong() }
-    val sequenceMap = sequenceListToMap(sequence)
-    val intcode = Intcode(sequenceMap)
-    val paintRobot = PaintRobot(intcode)
-    val paintedTiles = paintRobot.run()
-    println(paintedTiles)
-
+    val stepsToSamePosition = moonMotion.stepsUntilSamePosition(moons)
+    println(stepsToSamePosition)
 }
