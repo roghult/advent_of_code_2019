@@ -11,31 +11,18 @@ class MoonMotion {
         return outputMoons
     }
 
-    fun stepsUntilSamePosition(inputMoons: List<Moon>): Int {
+    fun stepsUntilSamePosition(inputMoons: List<Moon>): Long {
         val outputMoons = inputMoons.map { it.copy() }
-        var timeStep = 0
+        var timeStep = 0L
         do  {
             applyGravity(outputMoons)
             applyVelocity(outputMoons)
             timeStep ++
-            if (timeStep % 1000 == 0) {
+            if (timeStep % 1000000L == 0L) {
                 println(timeStep)
             }
         } while (inputMoons != outputMoons)
         return timeStep
-
-
-//        var timeSteps = 1
-//        while (true) {
-//            val outputMoons = simulate(inputMoons, timeSteps)
-//            if (outputMoons == inputMoons) {
-//                return timeSteps
-//            }
-//            timeSteps++
-//            if (timeSteps % 1000 == 0) {
-//                println(timeSteps)
-//            }
-//        }
     }
 
     private fun applyVelocity(moons: List<Moon>) {
