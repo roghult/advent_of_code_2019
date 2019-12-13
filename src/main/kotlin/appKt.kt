@@ -2,17 +2,28 @@ import com.jesinkey.aoc.*
 import java.io.File
 
 fun main() {
-    val moons = listOf(
-        Moon(1, -4, 3),
-        Moon(-14, 9, -4),
-        Moon(-4, -6, 7),
-        Moon(6, -9, -11)
-    )
-    val moonMotion = MoonMotion()
-//    val moonsAfterSteps = moonMotion.simulate(moons, 1000)
-//    val totalEnergy = moonsAfterSteps.sumBy { it.totalEnergy() }
-//    println(totalEnergy)
+    val inputFileName = "input_day_13.txt"
+    val input = readInput(inputFileName)
+    val sequence = input.split(",").map { it.toLong() }
+    val sequenceMap = sequenceListToMap(sequence)
+    val intcode = Intcode(sequenceMap)
+    var output: Long? = 0
+    var counter = 0
+    while (output != null) {
+        output = intcode.run()
+        output = intcode.run()
+        output = intcode.run()
 
-    val stepsToSamePosition = moonMotion.stepsUntilSamePosition(moons)
-    println(stepsToSamePosition)
+        if (output == 2L) {
+            counter++
+        }
+    }
+
+    println(counter)
+}
+
+private fun readInput(fileName: String): String {
+    val dir = "src/main/resources/"
+    val fullPath = dir + fileName
+    return File(fullPath).readText()
 }
