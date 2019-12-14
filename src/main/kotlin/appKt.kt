@@ -1,22 +1,20 @@
 import com.jesinkey.aoc.*
 import java.io.File
 
-private fun readInput(fileName: String): String {
-    val dir = "src/main/resources/"
+fun readInput(fileName: String, dir: String = "src/main/resources/"): String {
     val fullPath = dir + fileName
     return File(fullPath).readText()
 }
 
-fun main() {
-    val moons = listOf(
-        Moon(x=1, y=-4, z=3),
-        Moon(x=-14, y=9, z=-4),
-        Moon(x=-4, y=-6, z=7),
-        Moon(x=6, y=-9, z=-11)
-    )
-    val moonMotion = MoonMotion()
-    val stepsToSamePosition = moonMotion.stepsUntilSamePosition(moons)
+fun readInputLines(fileName: String, dir: String = "src/main/resources/"): List<String> {
+    val fullPath = dir + fileName
+    return File(fullPath).readLines()
+}
 
-    println(stepsToSamePosition)
+fun main() {
+    val input = readInputLines("input_day_14.txt")
+    val subject = Reactions()
+    val result = subject.minimumOreForFuel(input)
+    println(result)
 }
 
