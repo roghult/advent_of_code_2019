@@ -16,5 +16,6 @@ fun main() {
     val subject = Reactions()
     val result = subject.minimumOreForFuel(input)
     println(result)
+    // not 303690
 }
 
