@@ -44,7 +44,8 @@ class Reactions {
         }
     }
 
-    fun minimumOreForFuel(input: List<String>): Int {
+    fun fuelFromOre(input: List<String>): Int {
+        val amountOfOre = 1000000000000
         val functions = createFunctions(input)
         val fuelFunction = functions.single { function -> function.result.name == "FUEL" }
         var chemicals = fuelFunction.chemicals
@@ -56,6 +57,55 @@ class Reactions {
             chemicals = removeRest(chemicals)
         }
 
+        val restChemicals = restAmountByName.map { (name, amount) ->
+            Chemical(name, amount)
+        }
+
+        val oreConsumedPerRunDisregardingRest = chemicals.map { chemical ->
+            val chemicalFunction = chemicalFunction(functions, chemical)
+            val functionAmount = ceil(numberOfTimesFunctionIsNeeded(chemical.amount, chemicalFunction)).toInt()
+            val oreRequired = functionAmount * chemicalFunction.chemicals.single().amount
+            oreRequired
+        }.sum()
+
+        val restWorthPerRun = restChemicals.map { chemical ->
+            val chemicalFunction = chemicalFunction(functions, chemical)
+            val savedPerRun = chemical.amount / chemicalFunction.result.amount.toDouble()
+            savedPerRun
+        }.sumByDouble { it }
+
+        val oreConsumedPerRun = oreConsumedPerRunDisregardingRest - restWorthPerRun
+        val result = 1 + ((amountOfOre - oreConsumedPerRun) / oreConsumedPerRun).toInt()
+
+        return result
+    }
+
+    private fun expand(
+        accumulatedRestChemicals: MutableList<Chemical>,
+        functions: List<Function>
+    ): List<Chemical> {
+        var changeOccurred = false
+        var foo = accumulatedRestChemicals.toList()
+        do {
+            foo = foo.flatMap { restChemical ->
+                val chemicalFunction = chemicalFunction(functions, restChemical)
+                if (restChemical.amount % chemicalFunction.result.amount == 0) {
+                    changeOccurred = true
+                    chemicalFunction.chemicals
+                } else {
+                    listOf(restChemical)
+                }
+            }
+        } while (changeOccurred)
+        return mergeChemicals(foo)
+    }
+
+    fun minimumOreForFuel(input: List<String>): Int {
+        val functions = createFunctions(input)
+        val fuelFunction = functions.single { function -> function.result.name == "FUEL" }
+        var chemicals = fuelFunction.chemicals
+        chemicals = replaceWithProducers(chemicals, functions)
+
         val oreAmounts = chemicals.associateBy { it.name }.map { (name, chemical) ->
             val chemicalFunction = functions.single { function -> function.result.name == name}
             val chemicalAmount = chemical.amount
@@ -64,6 +114,21 @@ class Reactions {
         }
 
         return oreAmounts.sum()
+    }
+
+    private fun replaceWithProducers(
+        chemicals: List<Chemical>,
+        functions: List<Function>
+    ): List<Chemical> {
+        var producerChemicals = chemicals
+        var allChemicalsAreProducers = false
+        while (!allChemicalsAreProducers) {
+            producerChemicals = replaceNonProducers(producerChemicals, functions)
+            producerChemicals = mergeChemicals(producerChemicals)
+            allChemicalsAreProducers = allChemicalsAreProducers(producerChemicals, functions)
+            producerChemicals = removeRest(producerChemicals)
+        }
+        return producerChemicals
     }
 
     private fun removeRest(chemicals: List<Chemical>): List<Chemical> {

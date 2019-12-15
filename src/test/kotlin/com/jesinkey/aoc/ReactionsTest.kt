@@ -50,4 +50,13 @@ class ReactionsTest {
         val result = subject.minimumOreForFuel(input)
         assertEquals(expected, result)
     }
+
+    @Test
+    fun `test max fuel 3`() {
+        val input = readInputLines("day_14_test_3.txt", "src/test/resources/")
+        val subject = Reactions()
+        val expected = 82892753
+        val result = subject.fuelFromOre(input)
+        assertEquals(expected, result)
+    }
 }
