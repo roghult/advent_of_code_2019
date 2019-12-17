@@ -20,11 +20,11 @@ data class Function(val chemicals: List<Chemical>, val result: Chemical) {
     }
 }
 
-data class Chemical(val name: String, val amount: Int) {
+data class Chemical(val name: String, val amount: Long) {
     companion object {
         fun from(chemicalString: String): Chemical {
             val foo = chemicalString.trim().split(" ")
-            val amount = foo[0].toInt()
+            val amount = foo[0].toLong()
             val name = foo[1]
             return Chemical(name, amount)
         }
@@ -44,153 +44,58 @@ class Reactions {
         }
     }
 
-    fun fuelFromOre(input: List<String>): Int {
-        val amountOfOre = 1000000000000
+    fun oreNeededForFuel(fuelAmount: Long, input: List<String>): Long {
         val functions = createFunctions(input)
-        val fuelFunction = functions.single { function -> function.result.name == "FUEL" }
-        var chemicals = fuelFunction.chemicals
-        var allChemicalsAreProducers = false
-        while (!allChemicalsAreProducers) {
-            chemicals = replaceNonProducers(chemicals, functions)
-            chemicals = mergeChemicals(chemicals)
-            allChemicalsAreProducers = allChemicalsAreProducers(chemicals, functions)
-            chemicals = removeRest(chemicals)
+        val fuelFunction = functions.single { it.result.name == "FUEL" }
+        val amountNeeded = fuelAmount / fuelFunction.result.amount
+        var previous = mutableMapOf<String, Long>()
+        val needToProduce = fuelFunction.chemicals.map { it.name to it.amount * amountNeeded }.toMap().toMutableMap()
+        val rest = mutableMapOf<String, Long>()
+
+        while (needToProduce != previous) {
+            previous = needToProduce.toMutableMap()
+            for ((chemical, amount) in needToProduce.filterValues { it > 0 }) {
+                val chemicalFunction = functions.single { it.result.name == chemical }
+                if (chemicalFunction.isProducer()) continue
+
+                val requiredProductionAmount = ceil(amount / chemicalFunction.result.amount.toDouble()).toInt()
+
+                for (newChemical in chemicalFunction.chemicals) {
+                    val newChemicalAmount = newChemical.amount * requiredProductionAmount
+                    needToProduce[newChemical.name] = needToProduce[newChemical.name]?.plus(newChemicalAmount) ?: newChemicalAmount
+                }
+
+                val restAmount = amount - requiredProductionAmount
+                rest[chemical] = rest[chemical]?.plus(restAmount) ?: restAmount
+                for ((restName, restAmount) in rest) {
+                    if (needToProduce.containsKey(restName)) {
+                        val needToProduceValue = needToProduce[restName]
+                        val newProduceValue = when {
+                            needToProduceValue == null -> 0
+                            needToProduceValue >= restAmount -> {
+                                rest[restName] = 0
+                                needToProduceValue - restAmount
+                            }
+                            needToProduceValue < restAmount -> {
+                                rest[restName] = restAmount - needToProduceValue
+                                0
+                            }
+                            else -> TODO()
+                        }
+                        needToProduce[restName] = newProduceValue
+                    }
+                }
+
+                needToProduce[chemicalFunction.result.name] = 0
+            }
         }
 
-        val restChemicals = restAmountByName.map { (name, amount) ->
-            Chemical(name, amount)
-        }
-
-        val oreConsumedPerRunDisregardingRest = chemicals.map { chemical ->
-            val chemicalFunction = chemicalFunction(functions, chemical)
-            val functionAmount = ceil(numberOfTimesFunctionIsNeeded(chemical.amount, chemicalFunction)).toInt()
-            val oreRequired = functionAmount * chemicalFunction.chemicals.single().amount
-            oreRequired
+        val amountOre = needToProduce.filterValues { it > 0 }.map { (name, amount) ->
+            val chemicalFunction = functions.single { it.result.name == name }
+            val requiredProductionAmount = ceil(amount / chemicalFunction.result.amount.toDouble()).toInt()
+            chemicalFunction.chemicals.single().amount * requiredProductionAmount
         }.sum()
 
-        val restWorthPerRun = restChemicals.map { chemical ->
-            val chemicalFunction = chemicalFunction(functions, chemical)
-            val savedPerRun = chemical.amount / chemicalFunction.result.amount.toDouble()
-            savedPerRun
-        }.sumByDouble { it }
-
-        val oreConsumedPerRun = oreConsumedPerRunDisregardingRest - restWorthPerRun
-        val result = 1 + ((amountOfOre - oreConsumedPerRun) / oreConsumedPerRun).toInt()
-
-        return result
+        return amountOre
     }
-
-    private fun expand(
-        accumulatedRestChemicals: MutableList<Chemical>,
-        functions: List<Function>
-    ): List<Chemical> {
-        var changeOccurred = false
-        var foo = accumulatedRestChemicals.toList()
-        do {
-            foo = foo.flatMap { restChemical ->
-                val chemicalFunction = chemicalFunction(functions, restChemical)
-                if (restChemical.amount % chemicalFunction.result.amount == 0) {
-                    changeOccurred = true
-                    chemicalFunction.chemicals
-                } else {
-                    listOf(restChemical)
-                }
-            }
-        } while (changeOccurred)
-        return mergeChemicals(foo)
-    }
-
-    fun minimumOreForFuel(input: List<String>): Int {
-        val functions = createFunctions(input)
-        val fuelFunction = functions.single { function -> function.result.name == "FUEL" }
-        var chemicals = fuelFunction.chemicals
-        chemicals = replaceWithProducers(chemicals, functions)
-
-        val oreAmounts = chemicals.associateBy { it.name }.map { (name, chemical) ->
-            val chemicalFunction = functions.single { function -> function.result.name == name}
-            val chemicalAmount = chemical.amount
-            val functionAmount = ceil(numberOfTimesFunctionIsNeeded(chemicalAmount, chemicalFunction)).toInt()
-            chemicalFunction.chemicals.single().amount * functionAmount
-        }
-
-        return oreAmounts.sum()
-    }
-
-    private fun replaceWithProducers(
-        chemicals: List<Chemical>,
-        functions: List<Function>
-    ): List<Chemical> {
-        var producerChemicals = chemicals
-        var allChemicalsAreProducers = false
-        while (!allChemicalsAreProducers) {
-            producerChemicals = replaceNonProducers(producerChemicals, functions)
-            producerChemicals = mergeChemicals(producerChemicals)
-            allChemicalsAreProducers = allChemicalsAreProducers(producerChemicals, functions)
-            producerChemicals = removeRest(producerChemicals)
-        }
-        return producerChemicals
-    }
-
-    private fun removeRest(chemicals: List<Chemical>): List<Chemical> {
-        return chemicals.map {
-            val restAmount = restAmountByName[it.name]?: 0
-            restAmountByName[it.name] = 0
-            it.copy(amount = it.amount - restAmount)
-        }
-    }
-
-    private fun replaceNonProducers(
-        chemicals: List<Chemical>,
-        functions: List<Function>
-    ): List<Chemical> {
-        return chemicals.flatMap { chemical ->
-            val chemicalFunction = chemicalFunction(functions, chemical)
-            if (chemicalFunction.isProducer()) {
-                listOf(chemical)
-            } else {
-                val functionAmount = numberOfTimesFunctionIsNeeded(chemical.amount, chemicalFunction)
-                val functionAmountRoundedUp = ceil(functionAmount).toInt()
-                val resultAmount = chemicalFunction.result.amount
-                val rest = floor(resultAmount * functionAmountRoundedUp - resultAmount * functionAmount).toInt()
-                addRest(chemicalFunction.result.name, rest)
-                chemicalFunction.chemicals.map {
-                    val amount = it.amount * functionAmountRoundedUp
-                    it.copy(amount = amount)
-                }
-            }
-        }
-    }
-
-    private fun addRest(name: String, amount: Int) {
-        restAmountByName[name] = restAmountByName[name]?.plus(amount) ?: amount
-    }
-
-    private fun mergeChemicals(chemicals: List<Chemical>): List<Chemical> {
-        return chemicals
-            .groupBy { it.name }
-            .map { (name, chemicals) ->
-                Chemical(name, chemicals.sumBy { chemical ->  chemical.amount })
-            }
-    }
-
-    private fun numberOfTimesFunctionIsNeeded(
-        chemicalAmount: Int,
-        chemicalsFunction: Function
-    ) = chemicalAmount / chemicalsFunction.result.amount.toDouble()
-
-    private fun allChemicalsAreProducers(
-        chemicals: List<Chemical>,
-        functions: List<Function>
-    ): Boolean {
-        return chemicals.all { chemical ->
-            val chemicalsFunction = chemicalFunction(functions, chemical)
-            chemicalsFunction.isProducer()
-        }
-    }
-
-    private fun chemicalFunction(
-        functions: List<Function>,
-        chemical: Chemical
-    ) = functions.single { function -> function.result.name == chemical.name }
-
 }

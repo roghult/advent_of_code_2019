@@ -14,8 +14,8 @@ fun readInputLines(fileName: String, dir: String = "src/main/resources/"): List<
 fun main() {
     val input = readInputLines("input_day_14.txt")
     val subject = Reactions()
-    val result = subject.minimumOreForFuel(input)
-    println(result)
+//    val result = subject.minimumOreForFuel(input)
+//    println(result)
     // not 303690
 }
 
